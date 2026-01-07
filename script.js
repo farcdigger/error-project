@@ -90,9 +90,10 @@ function setupCopyButton() {
     });
 }
 
-// Binary rain efekti - "rrussia" kelimesini binary'ye çevir
-// r=01110010, r=01110010, u=01110101, s=01110011, s=01110011, i=01101001, a=01100001
-const rrussiaBinary = '01110010011100100111010101110011011100110110100101100001';
+// "russi" kelimesini binary'ye çevir
+// r=01110010, u=01110101, s=01110011, s=01110011, i=01101001
+const russiBinary = '0111001001110101011100110111001101101001';
+const russiBytes = ['01110010', '01110101', '01110011', '01110011', '01101001'];
 
 function createBinaryRain() {
     const binaryRain = document.getElementById('binaryRain');
@@ -145,10 +146,49 @@ function createBinaryRain() {
     }
 }
 
-// Sayfa yüklendiğinde geri sayımı, kopyalama butonunu ve binary rain'i başlat
+// Prompt ekranını binary kodlarla doldur
+function fillPromptWithBinary() {
+    const promptContent = document.getElementById('promptContent');
+    
+    // "russi" binary'sini sayfalarca tekrarla
+    let binaryText = '';
+    const linesPerPage = 60;
+    const pages = 15; // 15 sayfa binary kodu (çok uzun olacak)
+    
+    for (let page = 0; page < pages; page++) {
+        for (let line = 0; line < linesPerPage; line++) {
+            // Her satırda "russi" binary'sini tekrarla
+            let lineText = '';
+            const bytesPerLine = 15; // Her satırda 15 byte
+            
+            for (let i = 0; i < bytesPerLine; i++) {
+                // "russi" bytes'larını sırayla kullan
+                const byteIndex = (line + i + page) % russiBytes.length;
+                lineText += russiBytes[byteIndex];
+                
+                // Byte'lar arası boşluk ekle (her 4 byte'da bir)
+                if ((i + 1) % 4 === 0 && i < bytesPerLine - 1) {
+                    lineText += ' ';
+                }
+            }
+            
+            binaryText += lineText + '\n';
+        }
+        
+        // Sayfalar arası boşluk
+        if (page < pages - 1) {
+            binaryText += '\n';
+        }
+    }
+    
+    promptContent.textContent = binaryText;
+}
+
+// Sayfa yüklendiğinde geri sayımı, kopyalama butonunu, binary rain'i ve prompt'u doldur
 document.addEventListener('DOMContentLoaded', () => {
     startCountdown();
     setupCopyButton();
     createBinaryRain();
+    fillPromptWithBinary();
 });
 
