@@ -45,6 +45,54 @@ function startCountdown() {
     setInterval(updateCountdown, 1000);
 }
 
-// Sayfa yüklendiğinde geri sayımı başlat
-document.addEventListener('DOMContentLoaded', startCountdown);
+// Kopyalama fonksiyonu
+function setupCopyButton() {
+    const copyButton = document.getElementById('copyButton');
+    const promptContent = document.getElementById('promptContent');
+    
+    copyButton.addEventListener('click', async () => {
+        try {
+            const text = promptContent.textContent || promptContent.innerText;
+            await navigator.clipboard.writeText(text);
+            
+            // Buton durumunu güncelle
+            const originalHTML = copyButton.innerHTML;
+            copyButton.classList.add('copied');
+            copyButton.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            
+            // 2 saniye sonra eski haline dön
+            setTimeout(() => {
+                copyButton.classList.remove('copied');
+                copyButton.innerHTML = originalHTML;
+            }, 2000);
+        } catch (err) {
+            console.error('Kopyalama hatası:', err);
+            // Fallback: eski yöntem
+            const textArea = document.createElement('textarea');
+            textArea.value = promptContent.textContent || promptContent.innerText;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Buton durumunu güncelle
+            const originalHTML = copyButton.innerHTML;
+            copyButton.classList.add('copied');
+            copyButton.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            
+            setTimeout(() => {
+                copyButton.classList.remove('copied');
+                copyButton.innerHTML = originalHTML;
+            }, 2000);
+        }
+    });
+}
+
+// Sayfa yüklendiğinde geri sayımı ve kopyalama butonunu başlat
+document.addEventListener('DOMContentLoaded', () => {
+    startCountdown();
+    setupCopyButton();
+});
 
