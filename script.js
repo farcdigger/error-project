@@ -1,19 +1,19 @@
-// 48 saatlik (2 gün) geri sayım fonksiyonu
+// 96 saatlik (4 gün) geri sayım fonksiyonu
 function startCountdown() {
-    // 2 gün sonrasını hesapla
+    // 4 gün sonrasını hesapla
     const now = new Date();
     const targetTime = new Date(now);
-    targetTime.setDate(targetTime.getDate() + 2); // 2 gün ekle
+    targetTime.setDate(targetTime.getDate() + 4); // 4 gün ekle
     targetTime.setHours(0, 0, 0, 0); // Gece yarısına ayarla
     
     function updateCountdown() {
         const currentTime = new Date();
         const timeDifference = targetTime - currentTime;
         
-        // Eğer süre dolduysa, yeni bir 2 günlük döngü başlat
+        // Eğer süre dolduysa, yeni bir 4 günlük döngü başlat
         if (timeDifference <= 0) {
             const newTarget = new Date(currentTime);
-            newTarget.setDate(newTarget.getDate() + 2);
+            newTarget.setDate(newTarget.getDate() + 4);
             newTarget.setHours(0, 0, 0, 0);
             targetTime.setTime(newTarget.getTime());
             return updateCountdown();
@@ -21,7 +21,7 @@ function startCountdown() {
         
         // Kalan süreyi hesapla
         const totalHours = Math.floor(timeDifference / (1000 * 60 * 60));
-        const hours = totalHours; // Toplam saat (48 saate kadar)
+        const hours = totalHours; // Toplam saat (96 saate kadar)
         const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
         
