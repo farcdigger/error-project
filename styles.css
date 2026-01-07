@@ -1,0 +1,138 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.countdown-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.countdown {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #888888;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.time-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-value {
+    font-size: 48px;
+    font-weight: 600;
+    color: #cccccc;
+    min-width: 60px;
+    text-align: center;
+}
+
+.time-label {
+    font-size: 12px;
+    color: #666666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.separator {
+    font-size: 48px;
+    color: #666666;
+    margin-top: -20px;
+}
+
+.prompt-container {
+    width: 100%;
+    max-width: 900px;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.prompt-content {
+    color: #cccccc;
+    font-size: 14px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', monospace;
+    text-align: left;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+    .countdown {
+        font-size: 18px;
+        gap: 10px;
+    }
+    
+    .time-value {
+        font-size: 36px;
+        min-width: 50px;
+    }
+    
+    .separator {
+        font-size: 36px;
+        margin-top: -15px;
+    }
+    
+    .prompt-container {
+        padding: 30px 20px;
+    }
+    
+    .prompt-content {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-value {
+        font-size: 28px;
+        min-width: 40px;
+    }
+    
+    .separator {
+        font-size: 28px;
+        margin-top: -12px;
+    }
+    
+    .time-label {
+        font-size: 10px;
+    }
+    
+    .prompt-content {
+        font-size: 11px;
+    }
+}
+
