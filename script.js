@@ -90,9 +90,65 @@ function setupCopyButton() {
     });
 }
 
-// Sayfa yüklendiğinde geri sayımı ve kopyalama butonunu başlat
+// Binary rain efekti - "rrussia" kelimesini binary'ye çevir
+// r=01110010, r=01110010, u=01110101, s=01110011, s=01110011, i=01101001, a=01100001
+const rrussiaBinary = '01110010011100100111010101110011011100110110100101100001';
+
+function createBinaryRain() {
+    const binaryRain = document.getElementById('binaryRain');
+    const columns = 30; // Kolon sayısı
+    
+    // "rrussia" binary'sini 8'li gruplar halinde böl
+    // 01110010 01110010 01110101 01110011 01110011 01101001 01100001
+    const rrussiaBytes = [
+        '01110010', // r
+        '01110010', // r
+        '01110101', // u
+        '01110011', // s
+        '01110011', // s
+        '01101001', // i
+        '01100001'  // a
+    ];
+    
+    for (let i = 0; i < columns; i++) {
+        const column = document.createElement('div');
+        column.className = 'binary-column';
+        column.style.left = `${(100 / columns) * i}%`;
+        column.style.animationDuration = `${10 + Math.random() * 15}s`;
+        column.style.animationDelay = `${Math.random() * 5}s`;
+        
+        // Her kolonda binary kodları oluştur
+        let binaryText = '';
+        const lines = 80;
+        
+        for (let j = 0; j < lines; j++) {
+            // Her satırda "rrussia" binary'sinden bir byte kullan
+            // Ama görsel olarak çeşitlilik için bazı satırlarda rastgele ekle
+            if (Math.random() > 0.2) {
+                // "rrussia" bytes'ından birini al
+                const byteIndex = (j + i) % rrussiaBytes.length;
+                binaryText += rrussiaBytes[byteIndex] + ' ';
+            } else {
+                // Bazen rastgele binary ama yine de "rrussia" pattern'ini koru
+                const randomByte = rrussiaBytes[Math.floor(Math.random() * rrussiaBytes.length)];
+                binaryText += randomByte + ' ';
+            }
+            
+            // Her 8 satırda bir yeni satır ekle (görsel düzen için)
+            if ((j + 1) % 8 === 0) {
+                binaryText += '\n';
+            }
+        }
+        
+        column.textContent = binaryText;
+        binaryRain.appendChild(column);
+    }
+}
+
+// Sayfa yüklendiğinde geri sayımı, kopyalama butonunu ve binary rain'i başlat
 document.addEventListener('DOMContentLoaded', () => {
     startCountdown();
     setupCopyButton();
+    createBinaryRain();
 });
 
