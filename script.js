@@ -131,79 +131,72 @@ function createBinaryRain() {
     }
 }
 
-// Prompt ekranını binary kodlarla doldur - rastgele ve karışık ama "russi" pattern'ini koru
+// Prompt ekranını binary kodlarla doldur - çok rastgele, uzun örüntüler, "russi" çok seyrek
 function fillPromptWithBinary() {
     const promptContent = document.getElementById('promptContent');
     
-    // "russi" binary'sini sayfalarca tekrarla ama rastgele dağıt
     let binaryText = '';
-    const totalLines = 900; // Toplam satır sayısı
+    const totalLines = 1200; // Daha fazla satır
     
-    // "russi" binary'sini tek bir string olarak birleştir
-    const fullRussiBinary = russiBinary;
+    // "russi" binary'sini çok seyrek yerleştir (her 300-600 byte'da bir)
+    let russiCounter = 0;
+    let nextRussiAt = 300 + Math.floor(Math.random() * 300); // 300-600 byte arası
     
     for (let line = 0; line < totalLines; line++) {
         let lineText = '';
         
-        // Her satırın uzunluğunu rastgele yap (5-25 byte arası, çok değişken)
-        const bytesPerLine = 5 + Math.floor(Math.random() * 21);
+        // Her satırın uzunluğunu çok rastgele yap (15-50 byte arası)
+        const bytesPerLine = 15 + Math.floor(Math.random() * 36);
         
         for (let i = 0; i < bytesPerLine; i++) {
-            // %60 ihtimalle "russi" binary'sinden bir byte kullan
-            if (Math.random() > 0.4) {
-                // "russi" bytes'larından rastgele birini seç
+            // Çok seyrek olarak "russi" bytes'larını yerleştir
+            if (russiCounter >= nextRussiAt) {
+                // "russi" bytes'larından birini ekle
                 const byteIndex = Math.floor(Math.random() * russiBytes.length);
                 lineText += russiBytes[byteIndex];
+                russiCounter = 0;
+                // Yeni interval belirle (300-600 byte arası)
+                nextRussiAt = 300 + Math.floor(Math.random() * 300);
             } else {
-                // %40 ihtimalle rastgele binary ama "russi" pattern'ini koru
-                if (Math.random() > 0.6) {
-                    // "russi" bytes'ından birini al
-                    const randomByte = russiBytes[Math.floor(Math.random() * russiBytes.length)];
-                    lineText += randomByte;
-                } else {
-                    // Tamamen rastgele 8 bit ama "russi" bytes'larına benzer pattern
-                    let randomBits = '';
-                    const baseByte = russiBytes[Math.floor(Math.random() * russiBytes.length)];
-                    for (let j = 0; j < 8; j++) {
-                        // %40 ihtimalle base byte'dan, %60 rastgele
-                        randomBits += Math.random() > 0.6 ? baseByte[j] : (Math.random() > 0.5 ? '0' : '1');
-                    }
-                    lineText += randomBits;
+                // Çoğunlukla tamamen rastgele binary
+                let randomByte = '';
+                for (let j = 0; j < 8; j++) {
+                    randomByte += Math.random() > 0.5 ? '0' : '1';
                 }
+                lineText += randomByte;
+                russiCounter++;
             }
             
             // Boşlukları çok rastgele ekle
             if (i < bytesPerLine - 1) {
                 const spaceChance = Math.random();
-                if (spaceChance > 0.5) {
-                    const spaceCount = spaceChance > 0.9 ? 3 : (spaceChance > 0.7 ? 2 : 1);
+                if (spaceChance > 0.3) {
+                    const spaceCount = spaceChance > 0.95 ? 5 : (spaceChance > 0.85 ? 4 : (spaceChance > 0.75 ? 3 : (spaceChance > 0.6 ? 2 : 1)));
                     lineText += ' '.repeat(spaceCount);
                 }
             }
         }
         
         // Bazen satır başına rastgele karakterler ekle
-        if (Math.random() > 0.88) {
+        if (Math.random() > 0.7) {
             const randomPrefix = Math.random() > 0.5 ? '0' : '1';
-            lineText = randomPrefix.repeat(Math.floor(Math.random() * 8)) + lineText;
+            const prefixLength = Math.floor(Math.random() * 20) + 1;
+            lineText = randomPrefix.repeat(prefixLength) + lineText;
         }
         
         // Bazen satır sonuna rastgele karakterler ekle
-        if (Math.random() > 0.92) {
+        if (Math.random() > 0.75) {
             const randomSuffix = Math.random() > 0.5 ? '0' : '1';
-            lineText += randomSuffix.repeat(Math.floor(Math.random() * 6));
+            const suffixLength = Math.floor(Math.random() * 18) + 1;
+            lineText += randomSuffix.repeat(suffixLength);
         }
         
         binaryText += lineText + '\n';
         
         // Bazen boş satır ekle (rastgele)
-        if (Math.random() > 0.82) {
-            binaryText += '\n';
-        }
-        
-        // Bazen 2-3 boş satır ekle
-        if (Math.random() > 0.95) {
-            binaryText += '\n\n';
+        if (Math.random() > 0.65) {
+            const emptyLines = Math.random() > 0.92 ? 4 : (Math.random() > 0.85 ? 3 : (Math.random() > 0.75 ? 2 : 1));
+            binaryText += '\n'.repeat(emptyLines);
         }
     }
     
