@@ -203,11 +203,22 @@ function fillPromptWithBinary() {
     promptContent.textContent = binaryText;
 }
 
-// Sayfa yüklendiğinde tarihi göster, kopyalama butonunu, binary rain'i ve prompt'u doldur
+// Sayfa yüklendiğinde fonksiyonları başlat
 document.addEventListener('DOMContentLoaded', () => {
-    showRandomDate();
-    setupCopyButton();
+    // Binary rain her sayfada çalışsın
     createBinaryRain();
-    fillPromptWithBinary();
+    
+    // Ana sayfada çalışacak fonksiyonlar
+    if (document.getElementById('dateDisplay')) {
+        showRandomDate();
+    }
+    
+    if (document.getElementById('copyButton')) {
+        setupCopyButton();
+    }
+    
+    if (document.getElementById('promptContent')) {
+        fillPromptWithBinary();
+    }
 });
 

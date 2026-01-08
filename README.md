@@ -26,3 +26,4 @@ Vercel'e deploy etmek için:
 2. Vercel otomatik olarak deploy edecektir
 
 
+
