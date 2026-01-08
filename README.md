@@ -25,3 +25,4 @@ Vercel'e deploy etmek için:
 1. GitHub repository'nizi Vercel'e bağlayın
 2. Vercel otomatik olarak deploy edecektir
 
+

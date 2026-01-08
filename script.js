@@ -1,41 +1,33 @@
-// 96 saatlik (4 gün) geri sayım fonksiyonu
-function startCountdown() {
-    // 4 gün sonrasını hesapla
-    const now = new Date();
-    const targetTime = new Date(now);
-    targetTime.setDate(targetTime.getDate() + 4); // 4 gün ekle
-    targetTime.setHours(0, 0, 0, 0); // Gece yarısına ayarla
+// Her gün 1950-2000 arası rastgele tarih göster
+function showRandomDate() {
+    const today = new Date();
+    // Bugünün tarihini seed olarak kullan (aynı gün aynı tarihi göstermek için)
+    const seed = today.getFullYear() * 10000 + today.getMonth() * 100 + today.getDate();
     
-    function updateCountdown() {
-        const currentTime = new Date();
-        const timeDifference = targetTime - currentTime;
-        
-        // Eğer süre dolduysa, yeni bir 4 günlük döngü başlat
-        if (timeDifference <= 0) {
-            const newTarget = new Date(currentTime);
-            newTarget.setDate(newTarget.getDate() + 4);
-            newTarget.setHours(0, 0, 0, 0);
-            targetTime.setTime(newTarget.getTime());
-            return updateCountdown();
-        }
-        
-        // Kalan süreyi hesapla
-        const totalHours = Math.floor(timeDifference / (1000 * 60 * 60));
-        const hours = totalHours; // Toplam saat (96 saate kadar)
-        const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-        
-        // DOM'u güncelle
-        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-        document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    // Basit bir rastgele sayı üretici (seed bazlı)
+    function seededRandom(seed) {
+        const x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
     }
     
-    // İlk güncelleme
-    updateCountdown();
+    // 1950-2000 arası yıl seç
+    const year = 1950 + Math.floor(seededRandom(seed) * 51);
     
-    // Her saniye güncelle
-    setInterval(updateCountdown, 1000);
+    // 1-12 arası ay seç
+    const month = 1 + Math.floor(seededRandom(seed * 2) * 12);
+    
+    // Ayın gün sayısına göre gün seç
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const day = 1 + Math.floor(seededRandom(seed * 3) * daysInMonth);
+    
+    // Tarihi formatla: DD.MM.YYYY
+    const formattedDate = 
+        String(day).padStart(2, '0') + '.' + 
+        String(month).padStart(2, '0') + '.' + 
+        String(year);
+    
+    // DOM'u güncelle
+    document.getElementById('dateDisplay').textContent = formattedDate;
 }
 
 // Kopyalama fonksiyonu
@@ -218,9 +210,9 @@ function fillPromptWithBinary() {
     promptContent.textContent = binaryText;
 }
 
-// Sayfa yüklendiğinde geri sayımı, kopyalama butonunu, binary rain'i ve prompt'u doldur
+// Sayfa yüklendiğinde tarihi göster, kopyalama butonunu, binary rain'i ve prompt'u doldur
 document.addEventListener('DOMContentLoaded', () => {
-    startCountdown();
+    showRandomDate();
     setupCopyButton();
     createBinaryRain();
     fillPromptWithBinary();
