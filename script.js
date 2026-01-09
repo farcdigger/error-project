@@ -250,6 +250,31 @@ function generateFrequencyFromDate(dateString) {
     // Amplitude (rastgele)
     const amplitude = 0.3 + ((hash % 70) / 100);
     
+    // Sinyal durumu (tarihe göre deterministik)
+    const statusHash = (hash * 13) % 100;
+    let status, statusColor;
+    if (statusHash < 40) {
+        // %40 ihtimalle ACTIVE
+        status = 'ACTIVE';
+        statusColor = '#00ff00';
+    } else if (statusHash < 65) {
+        // %25 ihtimalle WEAK
+        status = 'WEAK';
+        statusColor = '#ffff00';
+    } else if (statusHash < 80) {
+        // %15 ihtimalle INTERMITTENT
+        status = 'INTERMITTENT';
+        statusColor = '#ff8800';
+    } else if (statusHash < 90) {
+        // %10 ihtimalle INACTIVE
+        status = 'INACTIVE';
+        statusColor = '#666666';
+    } else {
+        // %10 ihtimalle NO SIGNAL
+        status = 'NO SIGNAL';
+        statusColor = '#ff0000';
+    }
+    
     return {
         frequency: baseFreq,
         wavelength: wavelength,
@@ -257,12 +282,19 @@ function generateFrequencyFromDate(dateString) {
         source: source,
         coordinates: `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`,
         modulation: modulation,
-        power: power + ' dB'
+        power: power + ' dB',
+        status: status,
+        statusColor: statusColor
     };
 }
 
-// Frekans sesini çal
-function playFrequency(frequency) {
+// Frekans sesini çal (status'a göre)
+function playFrequency(frequency, status) {
+    // INACTIVE veya NO SIGNAL ise ses çalma
+    if (status === 'INACTIVE' || status === 'NO SIGNAL') {
+        return;
+    }
+    
     if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
@@ -277,8 +309,25 @@ function playFrequency(frequency) {
     oscillator.type = 'sine';
     oscillator.frequency.value = frequency;
     
-    // Volume kontrolü
-    gainNode.gain.value = 0.15;
+    // Volume kontrolü - status'a göre ayarla
+    let volume = 0.15;
+    if (status === 'WEAK') {
+        volume = 0.08; // Daha düşük ses
+    } else if (status === 'INTERMITTENT') {
+        volume = 0.12;
+        // Intermittent için sesi kes-kes yap
+        const interval = setInterval(() => {
+            if (gainNode) {
+                gainNode.gain.value = gainNode.gain.value > 0 ? 0 : volume;
+            }
+        }, 500);
+        // Cleanup için interval'i sakla
+        if (!oscillator._interval) {
+            oscillator._interval = interval;
+        }
+    }
+    
+    gainNode.gain.value = volume;
     
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
@@ -290,6 +339,11 @@ function playFrequency(frequency) {
 // Frekans sesini durdur
 function stopFrequency() {
     if (oscillator) {
+        // Intermittent için interval'i temizle
+        if (oscillator._interval) {
+            clearInterval(oscillator._interval);
+            oscillator._interval = null;
+        }
         oscillator.stop();
         oscillator.disconnect();
         oscillator = null;
@@ -322,11 +376,15 @@ function openFrequencyModal() {
     // Modal'ı göster
     modal.classList.add('active');
     
-    // Frekans sesini çal
-    playFrequency(freqData.frequency);
+    // Status'u güncelle
+    const statusText = document.getElementById('statusText');
+    const statusIndicator = document.getElementById('statusIndicator');
+    statusText.textContent = freqData.status;
+    statusIndicator.style.background = freqData.statusColor;
+    statusIndicator.style.boxShadow = `0 0 10px ${freqData.statusColor}`;
     
-    // Status text'i güncelle
-    document.getElementById('statusText').textContent = 'ACTIVE';
+    // Frekans sesini çal (status'a göre)
+    playFrequency(freqData.frequency, freqData.status);
 }
 
 // Modal'ı kapat
