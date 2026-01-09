@@ -203,6 +203,175 @@ function fillPromptWithBinary() {
     promptContent.textContent = binaryText;
 }
 
+// Frequency Modal ve Audio
+let audioContext = null;
+let oscillator = null;
+let gainNode = null;
+let isPlaying = false;
+
+// Tarihe göre rastgele frekans üret (deterministik)
+function generateFrequencyFromDate(dateString) {
+    // Tarihi seed olarak kullan
+    const seed = dateString.split('.').join('');
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        const char = seed.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    // Hash'i pozitif yap
+    hash = Math.abs(hash);
+    
+    // Rastgele frekans üret (200-2000 Hz arası)
+    const baseFreq = 200 + (hash % 1800);
+    
+    // Rastgele modülasyon türleri
+    const modulations = ['AM', 'FM', 'PULSE', 'SINE', 'SQUARE', 'TRIANGLE', 'NOISE'];
+    const modulation = modulations[hash % modulations.length];
+    
+    // Rastgele kaynaklar
+    const sources = [
+        'UNKNOWN', 'ATMOSPHERIC', 'ORBITAL', 'TERRESTRIAL', 
+        'ANOMALOUS', 'REMNANT', 'ARTIFACT', 'RESONANCE'
+    ];
+    const source = sources[hash % sources.length];
+    
+    // Rastgele koordinatlar
+    const lat = ((hash * 7) % 180) - 90;
+    const lon = ((hash * 11) % 360) - 180;
+    
+    // Rastgele güç seviyesi
+    const power = 20 + (hash % 80);
+    
+    // Dalga boyu hesapla (frekans cinsinden)
+    const wavelength = (299792458 / baseFreq).toFixed(2);
+    
+    // Amplitude (rastgele)
+    const amplitude = 0.3 + ((hash % 70) / 100);
+    
+    return {
+        frequency: baseFreq,
+        wavelength: wavelength,
+        amplitude: (amplitude * 100).toFixed(1) + '%',
+        source: source,
+        coordinates: `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`,
+        modulation: modulation,
+        power: power + ' dB'
+    };
+}
+
+// Frekans sesini çal
+function playFrequency(frequency) {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    if (isPlaying) {
+        stopFrequency();
+    }
+    
+    oscillator = audioContext.createOscillator();
+    gainNode = audioContext.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+    
+    // Volume kontrolü
+    gainNode.gain.value = 0.15;
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.start();
+    isPlaying = true;
+}
+
+// Frekans sesini durdur
+function stopFrequency() {
+    if (oscillator) {
+        oscillator.stop();
+        oscillator.disconnect();
+        oscillator = null;
+    }
+    if (gainNode) {
+        gainNode.disconnect();
+        gainNode = null;
+    }
+    isPlaying = false;
+}
+
+// Modal'ı aç ve frekans bilgilerini göster
+function openFrequencyModal() {
+    const modal = document.getElementById('frequencyModal');
+    const dateDisplay = document.getElementById('dateDisplay');
+    const currentDate = dateDisplay.textContent;
+    
+    // Frekans bilgilerini üret
+    const freqData = generateFrequencyFromDate(currentDate);
+    
+    // Modal içindeki değerleri güncelle
+    document.getElementById('frequencyDate').textContent = currentDate;
+    document.getElementById('wavelengthValue').textContent = freqData.wavelength + ' m';
+    document.getElementById('amplitudeValue').textContent = freqData.amplitude;
+    document.getElementById('sourceValue').textContent = freqData.source;
+    document.getElementById('coordinatesValue').textContent = freqData.coordinates;
+    document.getElementById('modulationValue').textContent = freqData.modulation;
+    document.getElementById('powerValue').textContent = freqData.power;
+    
+    // Modal'ı göster
+    modal.classList.add('active');
+    
+    // Frekans sesini çal
+    playFrequency(freqData.frequency);
+    
+    // Status text'i güncelle
+    document.getElementById('statusText').textContent = 'ACTIVE';
+}
+
+// Modal'ı kapat
+function closeFrequencyModal() {
+    const modal = document.getElementById('frequencyModal');
+    modal.classList.remove('active');
+    stopFrequency();
+    document.getElementById('statusText').textContent = 'SCANNING...';
+}
+
+// Frequency buton event listener'ları
+function setupFrequencyButton() {
+    const frequencyButton = document.getElementById('frequencyButton');
+    const frequencyClose = document.getElementById('frequencyClose');
+    const frequencyModal = document.getElementById('frequencyModal');
+    
+    if (frequencyButton) {
+        frequencyButton.addEventListener('click', () => {
+            openFrequencyModal();
+        });
+    }
+    
+    if (frequencyClose) {
+        frequencyClose.addEventListener('click', () => {
+            closeFrequencyModal();
+        });
+    }
+    
+    // Modal dışına tıklandığında kapat
+    if (frequencyModal) {
+        frequencyModal.addEventListener('click', (e) => {
+            if (e.target === frequencyModal) {
+                closeFrequencyModal();
+            }
+        });
+    }
+    
+    // ESC tuşu ile kapat
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && frequencyModal.classList.contains('active')) {
+            closeFrequencyModal();
+        }
+    });
+}
+
 // Sayfa yüklendiğinde fonksiyonları başlat
 document.addEventListener('DOMContentLoaded', () => {
     // Binary rain her sayfada çalışsın
@@ -219,6 +388,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (document.getElementById('promptContent')) {
         fillPromptWithBinary();
+    }
+    
+    if (document.getElementById('frequencyButton')) {
+        setupFrequencyButton();
     }
 });
 

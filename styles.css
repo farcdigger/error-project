@@ -340,6 +340,302 @@ body {
     text-align: center;
 }
 
+.frequency-button {
+    padding: 10px 25px;
+    background: #2a2a2a;
+    border: 1px solid #4a4a4a;
+    border-radius: 6px;
+    color: #cccccc;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    animation: frequency-button-glitch 4s infinite;
+    text-shadow: 0 0 5px rgba(136, 136, 136, 0.6);
+}
+
+.frequency-button:hover {
+    background: #3a3a3a;
+    border-color: #5a5a5a;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.frequency-button:active {
+    transform: translateY(0);
+    background: #1a1a1a;
+}
+
+@keyframes frequency-button-glitch {
+    0%, 100% {
+        transform: translate(0);
+        opacity: 1;
+    }
+    25% {
+        transform: translate(-1px, 1px);
+        opacity: 0.95;
+    }
+    50% {
+        transform: translate(1px, -1px);
+        opacity: 0.97;
+    }
+    75% {
+        transform: translate(-0.5px, -0.5px);
+        opacity: 0.96;
+    }
+}
+
+/* Frequency Modal */
+.frequency-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    animation: modal-fade-in 0.3s ease;
+}
+
+.frequency-modal.active {
+    display: flex;
+}
+
+@keyframes modal-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.frequency-modal-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(0, 255, 0, 0.1),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+    animation: modal-content-glitch 5s infinite;
+}
+
+@keyframes modal-content-glitch {
+    0%, 100% {
+        transform: translate(0);
+        filter: hue-rotate(0deg);
+    }
+    20% {
+        transform: translate(-1px, 1px);
+        filter: hue-rotate(2deg);
+    }
+    40% {
+        transform: translate(1px, -1px);
+        filter: hue-rotate(-2deg);
+    }
+    60% {
+        transform: translate(-0.5px, -0.5px);
+        filter: hue-rotate(1deg);
+    }
+    80% {
+        transform: translate(0.5px, 0.5px);
+        filter: hue-rotate(-1deg);
+    }
+}
+
+.frequency-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: 1px solid #4a4a4a;
+    border-radius: 4px;
+    color: #cccccc;
+    font-size: 24px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    line-height: 1;
+    padding: 0;
+}
+
+.frequency-close:hover {
+    background: #3a3a3a;
+    border-color: #5a5a5a;
+    color: #ffffff;
+}
+
+.frequency-header {
+    margin-bottom: 25px;
+    text-align: center;
+    border-bottom: 1px solid #3a3a3a;
+    padding-bottom: 15px;
+}
+
+.frequency-title {
+    color: #00ff00;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    margin-bottom: 10px;
+    animation: title-pulse 2s infinite;
+}
+
+@keyframes title-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.frequency-date {
+    color: #888888;
+    font-size: 14px;
+    letter-spacing: 2px;
+    font-family: 'Courier New', monospace;
+}
+
+.frequency-info {
+    margin-bottom: 20px;
+}
+
+.frequency-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(58, 58, 58, 0.5);
+    font-family: 'Courier New', monospace;
+}
+
+.frequency-item:last-child {
+    border-bottom: none;
+}
+
+.frequency-label {
+    color: #666666;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.frequency-value {
+    color: #00ff88;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+    animation: value-flicker 3s infinite;
+}
+
+@keyframes value-flicker {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.frequency-visualizer {
+    width: 100%;
+    height: 80px;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.frequency-wave {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.frequency-wave::before {
+    content: '';
+    position: absolute;
+    bottom: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    animation: wave-animation 1s ease-in-out infinite;
+}
+
+@keyframes wave-animation {
+    0%, 100% {
+        transform: scaleY(0.5);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+.frequency-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    padding-top: 15px;
+    border-top: 1px solid #3a3a3a;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    animation: status-pulse 1.5s infinite;
+}
+
+@keyframes status-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.status-text {
+    color: #888888;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+}
+
 @keyframes date-glitch {
     0%, 100% {
         transform: translate(0);

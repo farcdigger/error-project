@@ -14,6 +14,7 @@
     <div class="container">
         <div class="countdown-container">
             <div class="date-display" id="dateDisplay">01.03.1965</div>
+            <button class="frequency-button" id="frequencyButton">FREQUENCY SCAN</button>
             <a href="explorer.html" class="explorer-button">EXPLORER</a>
         </div>
         
@@ -25,6 +26,50 @@
                 </svg>
             </button>
             <div class="prompt-content" id="promptContent"></div>
+        </div>
+    </div>
+    
+    <!-- Frequency Modal -->
+    <div class="frequency-modal" id="frequencyModal">
+        <div class="frequency-modal-content">
+            <button class="frequency-close" id="frequencyClose">&times;</button>
+            <div class="frequency-header">
+                <div class="frequency-title">SIGNAL ANALYSIS</div>
+                <div class="frequency-date" id="frequencyDate"></div>
+            </div>
+            <div class="frequency-info">
+                <div class="frequency-item">
+                    <span class="frequency-label">WAVELENGTH:</span>
+                    <span class="frequency-value" id="wavelengthValue">--</span>
+                </div>
+                <div class="frequency-item">
+                    <span class="frequency-label">AMPLITUDE:</span>
+                    <span class="frequency-value" id="amplitudeValue">--</span>
+                </div>
+                <div class="frequency-item">
+                    <span class="frequency-label">SOURCE:</span>
+                    <span class="frequency-value" id="sourceValue">--</span>
+                </div>
+                <div class="frequency-item">
+                    <span class="frequency-label">COORDINATES:</span>
+                    <span class="frequency-value" id="coordinatesValue">--</span>
+                </div>
+                <div class="frequency-item">
+                    <span class="frequency-label">MODULATION:</span>
+                    <span class="frequency-value" id="modulationValue">--</span>
+                </div>
+                <div class="frequency-item">
+                    <span class="frequency-label">POWER LEVEL:</span>
+                    <span class="frequency-value" id="powerValue">--</span>
+                </div>
+            </div>
+            <div class="frequency-visualizer">
+                <div class="frequency-wave" id="frequencyWave"></div>
+            </div>
+            <div class="frequency-status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span class="status-text" id="statusText">SCANNING...</span>
+            </div>
         </div>
     </div>
     
