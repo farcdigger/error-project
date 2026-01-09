@@ -511,5 +511,261 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('frequencyButton')) {
         setupFrequencyButton();
     }
+    
+    if (document.getElementById('correlationButton')) {
+        setupCorrelationButton();
+    }
 });
+
+// Date Correlation Engine
+function parseDate(dateString) {
+    const parts = dateString.split('.');
+    if (parts.length !== 3) return null;
+    
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
+    
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+    if (year < 1950 || year > 2000) return null;
+    if (month < 1 || month > 12) return null;
+    if (day < 1 || day > 31) return null;
+    
+    const date = new Date(year, month - 1, day);
+    if (date.getDate() !== day || date.getMonth() !== month - 1) return null;
+    
+    return date;
+}
+
+function calculateTemporalGap(date1, date2) {
+    const diff = Math.abs(date2 - date1);
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const years = Math.floor(days / 365);
+    const months = Math.floor((days % 365) / 30);
+    const remainingDays = days % 30;
+    
+    if (years > 0) {
+        return `${years}Y ${months}M ${remainingDays}D`;
+    } else if (months > 0) {
+        return `${months}M ${remainingDays}D`;
+    } else {
+        return `${days}D`;
+    }
+}
+
+function calculateResonance(date1, date2) {
+    // Tarihlerin sayısal özelliklerini kullanarak "rezonans" hesapla
+    const d1 = date1.getDate();
+    const m1 = date1.getMonth() + 1;
+    const y1 = date1.getFullYear();
+    
+    const d2 = date2.getDate();
+    const m2 = date2.getMonth() + 1;
+    const y2 = date2.getFullYear();
+    
+    // Farklı pattern'ler kontrol et
+    let resonance = 0;
+    
+    // Aynı gün
+    if (d1 === d2) resonance += 30;
+    // Aynı ay
+    if (m1 === m2) resonance += 25;
+    // Aynı yıl
+    if (y1 === y2) resonance += 20;
+    
+    // Sayısal pattern'ler
+    const sum1 = d1 + m1 + y1;
+    const sum2 = d2 + m2 + y2;
+    const sumDiff = Math.abs(sum1 - sum2);
+    
+    if (sumDiff === 0) resonance += 40;
+    else if (sumDiff < 10) resonance += 20;
+    else if (sumDiff < 50) resonance += 10;
+    
+    // Çift/tek pattern
+    if ((d1 % 2 === 0 && d2 % 2 === 0) || (d1 % 2 === 1 && d2 % 2 === 1)) {
+        resonance += 5;
+    }
+    
+    // Yıl farkı pattern'leri
+    const yearDiff = Math.abs(y1 - y2);
+    if (yearDiff === 0) resonance += 15;
+    else if (yearDiff === 1 || yearDiff === 10 || yearDiff === 25 || yearDiff === 50) {
+        resonance += 10;
+    }
+    
+    // Ay farkı pattern'leri
+    const monthDiff = Math.abs(m1 - m2);
+    if (monthDiff === 0 || monthDiff === 6) resonance += 8;
+    
+    return Math.min(100, resonance);
+}
+
+function getPatternType(date1, date2, resonance) {
+    const d1 = date1.getDate();
+    const m1 = date1.getMonth() + 1;
+    const y1 = date1.getFullYear();
+    const d2 = date2.getDate();
+    const m2 = date2.getMonth() + 1;
+    const y2 = date2.getFullYear();
+    
+    if (resonance >= 80) return 'STRONG RESONANCE';
+    if (resonance >= 60) return 'MODERATE LINK';
+    if (resonance >= 40) return 'WEAK CORRELATION';
+    if (resonance >= 20) return 'MINOR PATTERN';
+    
+    // Özel pattern'ler
+    if (d1 === d2 && m1 === m2) return 'TEMPORAL ECHO';
+    if (y1 === y2) return 'SAME PERIOD';
+    if (Math.abs(y1 - y2) === 1) return 'SEQUENTIAL';
+    if (Math.abs(y1 - y2) === 10 || Math.abs(y1 - y2) === 25) return 'HARMONIC GAP';
+    
+    return 'NO PATTERN';
+}
+
+function generateAnalysis(date1, date2, resonance, patternType, gap) {
+    const patterns = [
+        `Temporal gap of ${gap} detected. Signal interference patterns suggest ${resonance >= 60 ? 'strong' : resonance >= 40 ? 'moderate' : 'weak'} temporal resonance between these coordinates.`,
+        `Analysis indicates ${resonance >= 60 ? 'significant' : 'minor'} correlation. Pattern type: ${patternType}. Temporal waveform shows ${resonance >= 70 ? 'synchronized' : 'asynchronous'} behavior.`,
+        `These temporal coordinates exhibit ${resonance >= 50 ? 'unusual' : 'standard'} alignment. Resonance level suggests ${resonance >= 60 ? 'potential causal link' : 'coincidental overlap'}.`,
+        `Temporal analysis reveals ${patternType.toLowerCase()} pattern. Gap measurement: ${gap}. ${resonance >= 70 ? 'High probability of temporal interference.' : 'Low interference probability.'}`,
+        `Signal correlation detected. Pattern classification: ${patternType}. ${resonance >= 60 ? 'Recommend further investigation.' : 'No further action required.'}`
+    ];
+    
+    const specialCases = [
+        { condition: () => date1.getDate() === date2.getDate() && date1.getMonth() === date2.getMonth(),
+          text: `CRITICAL: Same calendar date detected across different years. This suggests temporal echo or recurring event pattern. Resonance is unusually high.` },
+        { condition: () => Math.abs(date1.getFullYear() - date2.getFullYear()) === 0,
+          text: `Same year correlation. Events may share temporal context. Pattern suggests localized temporal anomaly.` },
+        { condition: () => Math.abs(date1.getFullYear() - date2.getFullYear()) === 25,
+          text: `Quarter-century gap detected. This interval often shows harmonic resonance in temporal analysis.` }
+    ];
+    
+    for (const special of specialCases) {
+        if (special.condition()) {
+            return special.text;
+        }
+    }
+    
+    return patterns[Math.floor(Math.random() * patterns.length)];
+}
+
+function analyzeCorrelation(date1Str, date2Str) {
+    const date1 = parseDate(date1Str);
+    const date2 = parseDate(date2Str);
+    
+    if (!date1 || !date2) {
+        return {
+            error: 'Invalid date format. Please use DD.MM.YYYY format (1950-2000)'
+        };
+    }
+    
+    const gap = calculateTemporalGap(date1, date2);
+    const resonance = calculateResonance(date1, date2);
+    const patternType = getPatternType(date1, date2, resonance);
+    const analysis = generateAnalysis(date1, date2, resonance, patternType, gap);
+    
+    return {
+        gap: gap,
+        resonance: resonance + '%',
+        patternType: patternType,
+        analysis: analysis,
+        status: resonance >= 70 ? 'STRONG' : resonance >= 50 ? 'MODERATE' : resonance >= 30 ? 'WEAK' : 'NONE',
+        statusColor: resonance >= 70 ? '#00ff00' : resonance >= 50 ? '#ffff00' : resonance >= 30 ? '#ff8800' : '#666666'
+    };
+}
+
+// Correlation Modal Functions
+function setupCorrelationButton() {
+    const correlationButton = document.getElementById('correlationButton');
+    const correlationClose = document.getElementById('correlationClose');
+    const correlationModal = document.getElementById('correlationModal');
+    const analyzeBtn = document.getElementById('correlationAnalyzeBtn');
+    
+    if (correlationButton) {
+        correlationButton.addEventListener('click', () => {
+            correlationModal.classList.add('active');
+            // Mevcut tarihi ilk input'a otomatik doldur
+            const currentDate = document.getElementById('dateDisplay').textContent;
+            document.getElementById('dateInput1').value = currentDate;
+        });
+    }
+    
+    if (correlationClose) {
+        correlationClose.addEventListener('click', () => {
+            closeCorrelationModal();
+        });
+    }
+    
+    if (correlationModal) {
+        correlationModal.addEventListener('click', (e) => {
+            if (e.target === correlationModal) {
+                closeCorrelationModal();
+            }
+        });
+    }
+    
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', () => {
+            const date1 = document.getElementById('dateInput1').value.trim();
+            const date2 = document.getElementById('dateInput2').value.trim();
+            
+            if (!date1 || !date2) {
+                alert('Please enter both dates');
+                return;
+            }
+            
+            const results = analyzeCorrelation(date1, date2);
+            
+            if (results.error) {
+                alert(results.error);
+                return;
+            }
+            
+            // Sonuçları göster
+            document.getElementById('temporalGap').textContent = results.gap;
+            document.getElementById('resonanceLevel').textContent = results.resonance;
+            document.getElementById('patternType').textContent = results.patternType;
+            document.getElementById('analysisText').textContent = results.analysis;
+            document.getElementById('correlationStatusText').textContent = results.status;
+            document.getElementById('correlationStatusIndicator').style.background = results.statusColor;
+            document.getElementById('correlationStatusIndicator').style.boxShadow = `0 0 10px ${results.statusColor}`;
+            
+            document.getElementById('correlationResults').style.display = 'block';
+            
+            // Animasyon için scroll
+            document.getElementById('correlationResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    }
+    
+    // ESC tuşu ile kapat
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && correlationModal.classList.contains('active')) {
+            closeCorrelationModal();
+        }
+    });
+    
+    // Tarih input'larına otomatik format ekle
+    const dateInputs = document.querySelectorAll('.date-input');
+    dateInputs.forEach(input => {
+        input.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '.' + value.substring(2);
+            }
+            if (value.length >= 5) {
+                value = value.substring(0, 5) + '.' + value.substring(5, 9);
+            }
+            e.target.value = value;
+        });
+    });
+}
+
+function closeCorrelationModal() {
+    const correlationModal = document.getElementById('correlationModal');
+    correlationModal.classList.remove('active');
+    document.getElementById('correlationResults').style.display = 'none';
+    document.getElementById('dateInput1').value = '';
+    document.getElementById('dateInput2').value = '';
+}
 

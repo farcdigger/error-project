@@ -15,6 +15,7 @@
         <div class="countdown-container">
             <div class="date-display" id="dateDisplay">01.03.1965</div>
             <button class="frequency-button" id="frequencyButton">FREQUENCY SCAN</button>
+            <button class="correlation-button" id="correlationButton">DATE CORRELATION</button>
             <a href="explorer.html" class="explorer-button">EXPLORER</a>
         </div>
         
@@ -69,6 +70,56 @@
             <div class="frequency-status">
                 <span class="status-indicator" id="statusIndicator"></span>
                 <span class="status-text" id="statusText">SCANNING...</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Correlation Modal -->
+    <div class="correlation-modal" id="correlationModal">
+        <div class="correlation-modal-content">
+            <button class="correlation-close" id="correlationClose">&times;</button>
+            <div class="correlation-header">
+                <div class="correlation-title">TEMPORAL CORRELATION ENGINE</div>
+                <div class="correlation-subtitle">ANALYZING TEMPORAL PATTERNS...</div>
+            </div>
+            <div class="correlation-inputs">
+                <div class="date-input-group">
+                    <label class="date-label">DATE ALPHA:</label>
+                    <input type="text" class="date-input" id="dateInput1" placeholder="DD.MM.YYYY" maxlength="10">
+                </div>
+                <div class="date-input-group">
+                    <label class="date-label">DATE BETA:</label>
+                    <input type="text" class="date-input" id="dateInput2" placeholder="DD.MM.YYYY" maxlength="10">
+                </div>
+                <button class="correlation-analyze-btn" id="correlationAnalyzeBtn">ANALYZE</button>
+            </div>
+            <div class="correlation-results" id="correlationResults" style="display: none;">
+                <div class="correlation-status">
+                    <span class="correlation-status-indicator" id="correlationStatusIndicator"></span>
+                    <span class="correlation-status-text" id="correlationStatusText">PROCESSING...</span>
+                </div>
+                <div class="correlation-metrics">
+                    <div class="correlation-metric">
+                        <span class="metric-label">TEMPORAL GAP:</span>
+                        <span class="metric-value" id="temporalGap">--</span>
+                    </div>
+                    <div class="correlation-metric">
+                        <span class="metric-label">RESONANCE LEVEL:</span>
+                        <span class="metric-value" id="resonanceLevel">--</span>
+                    </div>
+                    <div class="correlation-metric">
+                        <span class="metric-label">PATTERN TYPE:</span>
+                        <span class="metric-value" id="patternType">--</span>
+                    </div>
+                </div>
+                <div class="correlation-analysis">
+                    <div class="analysis-title">CORRELATION ANALYSIS:</div>
+                    <div class="analysis-text" id="analysisText"></div>
+                </div>
+                <div class="correlation-visual">
+                    <div class="visual-title">TEMPORAL WAVEFORM:</div>
+                    <div class="correlation-waveform" id="correlationWaveform"></div>
+                </div>
             </div>
         </div>
     </div>
