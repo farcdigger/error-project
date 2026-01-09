@@ -207,6 +207,9 @@ function fillPromptWithBinary() {
 let audioContext = null;
 let oscillator = null;
 let gainNode = null;
+let noiseNode = null;
+let noiseGain = null;
+let filterNode = null;
 let isPlaying = false;
 
 // Tarihe göre rastgele frekans üret (deterministik)
@@ -288,6 +291,23 @@ function generateFrequencyFromDate(dateString) {
     };
 }
 
+// White noise üret (cızırtı için)
+function createNoise() {
+    const bufferSize = audioContext.sampleRate * 2;
+    const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    
+    for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1; // -1 ile 1 arası rastgele
+    }
+    
+    const noise = audioContext.createBufferSource();
+    noise.buffer = noiseBuffer;
+    noise.loop = true;
+    
+    return noise;
+}
+
 // Frekans sesini çal (status'a göre)
 function playFrequency(frequency, status) {
     // INACTIVE veya NO SIGNAL ise ses çalma
@@ -303,22 +323,40 @@ function playFrequency(frequency, status) {
         stopFrequency();
     }
     
+    // Ana sinyal (oscilatör)
     oscillator = audioContext.createOscillator();
     gainNode = audioContext.createGain();
     
     oscillator.type = 'sine';
     oscillator.frequency.value = frequency;
     
+    // Cızırtı için white noise ekle
+    noiseNode = createNoise();
+    noiseGain = audioContext.createGain();
+    
+    // Low-pass filter ekle (eski radyo hissi için)
+    filterNode = audioContext.createBiquadFilter();
+    filterNode.type = 'lowpass';
+    filterNode.frequency.value = 3000; // Yüksek frekansları kes
+    filterNode.Q.value = 1;
+    
     // Volume kontrolü - status'a göre ayarla
     let volume = 0.15;
+    let noiseVolume = 0.08; // Cızırtı seviyesi
+    
     if (status === 'WEAK') {
-        volume = 0.08; // Daha düşük ses
+        volume = 0.08;
+        noiseVolume = 0.12; // Zayıf sinyallerde cızırtı daha belirgin
     } else if (status === 'INTERMITTENT') {
         volume = 0.12;
+        noiseVolume = 0.10;
         // Intermittent için sesi kes-kes yap
         const interval = setInterval(() => {
             if (gainNode) {
                 gainNode.gain.value = gainNode.gain.value > 0 ? 0 : volume;
+            }
+            if (noiseGain) {
+                noiseGain.gain.value = noiseGain.gain.value > 0 ? 0 : noiseVolume;
             }
         }, 500);
         // Cleanup için interval'i sakla
@@ -328,11 +366,20 @@ function playFrequency(frequency, status) {
     }
     
     gainNode.gain.value = volume;
+    noiseGain.gain.value = noiseVolume;
     
+    // Sinyal ve cızırtıyı filtreye bağla, sonra çıkışa
     oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    gainNode.connect(filterNode);
     
+    noiseNode.connect(noiseGain);
+    noiseGain.connect(filterNode);
+    
+    filterNode.connect(audioContext.destination);
+    
+    // Başlat
     oscillator.start();
+    noiseNode.start();
     isPlaying = true;
 }
 
@@ -348,9 +395,22 @@ function stopFrequency() {
         oscillator.disconnect();
         oscillator = null;
     }
+    if (noiseNode) {
+        noiseNode.stop();
+        noiseNode.disconnect();
+        noiseNode = null;
+    }
     if (gainNode) {
         gainNode.disconnect();
         gainNode = null;
+    }
+    if (noiseGain) {
+        noiseGain.disconnect();
+        noiseGain = null;
+    }
+    if (filterNode) {
+        filterNode.disconnect();
+        filterNode = null;
     }
     isPlaying = false;
 }
