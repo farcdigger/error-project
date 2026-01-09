@@ -623,34 +623,81 @@ function getPatternType(date1, date2, resonance) {
     return 'NO PATTERN';
 }
 
-function generateAnalysis(date1, date2, resonance, patternType, gap) {
-    const patterns = [
+function generateAnalysis(date1, date2, resonance, patternType, gap, analysisDuration) {
+    // Süreye göre açıklama uzunluğu belirle
+    const isLongAnalysis = analysisDuration >= 60000; // 60 saniye veya daha uzun
+    const isVeryLongAnalysis = analysisDuration >= 120000; // 2 dakika veya daha uzun
+    
+    // Kısa açıklamalar (20-30 saniye)
+    const shortPatterns = [
         `Temporal gap of ${gap} detected. Signal interference patterns suggest ${resonance >= 60 ? 'strong' : resonance >= 40 ? 'moderate' : 'weak'} temporal resonance between these coordinates.`,
         `Analysis indicates ${resonance >= 60 ? 'significant' : 'minor'} correlation. Pattern type: ${patternType}. Temporal waveform shows ${resonance >= 70 ? 'synchronized' : 'asynchronous'} behavior.`,
         `These temporal coordinates exhibit ${resonance >= 50 ? 'unusual' : 'standard'} alignment. Resonance level suggests ${resonance >= 60 ? 'potential causal link' : 'coincidental overlap'}.`,
         `Temporal analysis reveals ${patternType.toLowerCase()} pattern. Gap measurement: ${gap}. ${resonance >= 70 ? 'High probability of temporal interference.' : 'Low interference probability.'}`,
-        `Signal correlation detected. Pattern classification: ${patternType}. ${resonance >= 60 ? 'Recommend further investigation.' : 'No further action required.'}`
+        `Signal correlation detected. Pattern classification: ${patternType}. ${resonance >= 60 ? 'Recommend further investigation.' : 'No further action required.'}`,
+        `Cross-temporal analysis complete. The ${gap} interval between coordinates shows ${resonance >= 60 ? 'remarkable' : 'minimal'} harmonic properties. Pattern suggests ${resonance >= 50 ? 'non-random' : 'stochastic'} temporal distribution.`,
+        `Temporal coordinates analyzed. Resonance level at ${resonance}% indicates ${resonance >= 70 ? 'strong' : resonance >= 50 ? 'moderate' : 'weak'} signal correlation. ${patternType} pattern detected in temporal waveform.`,
+        `Analysis reveals ${resonance >= 60 ? 'significant' : 'insignificant'} temporal linkage. The ${gap} separation shows ${resonance >= 50 ? 'unusual' : 'expected'} resonance characteristics.`,
+        `Temporal gap measurement: ${gap}. Pattern type ${patternType} suggests ${resonance >= 60 ? 'potential temporal anomaly' : 'standard temporal flow'}. Resonance at ${resonance}% threshold.`,
+        `Signal analysis complete. Coordinates separated by ${gap} exhibit ${resonance >= 70 ? 'exceptional' : resonance >= 40 ? 'moderate' : 'minimal'} correlation. ${patternType} classification confirmed.`
     ];
     
+    // Uzun açıklamalar (60+ saniye)
+    const longPatterns = [
+        `EXTENDED TEMPORAL ANALYSIS COMPLETE. The temporal gap of ${gap} between these coordinates reveals complex interference patterns. Initial resonance measurement indicates ${resonance >= 60 ? 'strong' : resonance >= 40 ? 'moderate' : 'weak'} temporal resonance at ${resonance}% threshold. Deep analysis of ${patternType} pattern suggests ${resonance >= 70 ? 'non-coincidental temporal alignment' : 'stochastic temporal distribution'}. Cross-referencing with historical temporal database shows ${resonance >= 60 ? 'multiple similar correlations' : 'isolated occurrence'}. Signal waveform analysis indicates ${resonance >= 50 ? 'synchronized temporal behavior' : 'asynchronous temporal flow'}. Further investigation ${resonance >= 60 ? 'strongly recommended' : 'not required'} based on correlation strength.`,
+        
+        `COMPREHENSIVE TEMPORAL CORRELATION REPORT. Analysis of temporal coordinates separated by ${gap} has been completed. The ${patternType} pattern detected shows ${resonance >= 70 ? 'exceptional' : resonance >= 50 ? 'moderate' : 'minimal'} resonance characteristics. Initial signal processing revealed ${resonance >= 60 ? 'significant' : 'minor'} temporal interference between coordinates. Database cross-reference indicates ${resonance >= 50 ? 'unusual' : 'standard'} temporal distribution. Waveform synchronization analysis shows ${resonance >= 70 ? 'highly synchronized' : 'asynchronous'} behavior patterns. Resonance level of ${resonance}% suggests ${resonance >= 60 ? 'potential causal relationship' : 'coincidental temporal overlap'}. Pattern classification ${patternType} confirmed through multiple analysis algorithms. ${resonance >= 60 ? 'Recommend extended temporal monitoring.' : 'No further action required.'}`,
+        
+        `DETAILED TEMPORAL ANALYSIS RESULTS. The ${gap} temporal interval between these coordinates has been thoroughly analyzed. Resonance measurement indicates ${resonance}% correlation strength, classified as ${resonance >= 70 ? 'STRONG' : resonance >= 50 ? 'MODERATE' : resonance >= 30 ? 'WEAK' : 'NONE'}. The detected ${patternType} pattern suggests ${resonance >= 60 ? 'non-random temporal alignment' : 'stochastic temporal distribution'}. Signal interference analysis reveals ${resonance >= 50 ? 'complex' : 'simple'} temporal waveform characteristics. Cross-temporal database search found ${resonance >= 60 ? 'multiple similar correlations' : 'no similar patterns'}. Harmonic analysis indicates ${resonance >= 70 ? 'exceptional' : resonance >= 40 ? 'moderate' : 'minimal'} temporal resonance. Pattern verification through multiple algorithms confirms ${patternType} classification. ${resonance >= 60 ? 'Extended monitoring recommended due to correlation strength.' : 'Standard monitoring protocol sufficient.'}`
+    ];
+    
+    // Çok uzun açıklamalar (2 dakika+)
+    const veryLongPatterns = [
+        `EXTENSIVE TEMPORAL CORRELATION ANALYSIS - FINAL REPORT. This comprehensive analysis of temporal coordinates separated by ${gap} has required extended processing time due to complexity of detected patterns. Initial resonance measurement indicates ${resonance}% correlation strength, placing this analysis in the ${resonance >= 70 ? 'STRONG' : resonance >= 50 ? 'MODERATE' : resonance >= 30 ? 'WEAK' : 'NONE'} classification category. The ${patternType} pattern detected through primary analysis algorithms has been verified through multiple secondary verification systems. Deep temporal waveform analysis reveals ${resonance >= 70 ? 'highly synchronized' : resonance >= 50 ? 'partially synchronized' : 'asynchronous'} behavior between temporal coordinates. Cross-referencing with historical temporal database spanning multiple decades shows ${resonance >= 60 ? 'unusual concentration of similar patterns' : 'standard temporal distribution'}. Signal interference patterns suggest ${resonance >= 60 ? 'potential non-linear temporal relationship' : 'linear temporal flow'}. Harmonic resonance analysis indicates ${resonance >= 70 ? 'exceptional' : resonance >= 40 ? 'moderate' : 'minimal'} temporal alignment. Pattern classification ${patternType} has been confirmed through independent verification algorithms. Statistical analysis of temporal distribution shows ${resonance >= 50 ? 'significant deviation from expected random distribution' : 'alignment with expected stochastic patterns'}. ${resonance >= 60 ? 'RECOMMENDATION: Extended temporal monitoring and further investigation strongly advised due to correlation strength and pattern complexity.' : 'CONCLUSION: Analysis complete. No further investigation required.'}`,
+        
+        `COMPLETE TEMPORAL CORRELATION STUDY - ANALYSIS REPORT. Extended temporal analysis has been completed for coordinates with ${gap} separation. This analysis required additional processing time due to ${resonance >= 60 ? 'complex correlation patterns' : 'standard verification protocols'}. Resonance measurement: ${resonance}% (${resonance >= 70 ? 'STRONG' : resonance >= 50 ? 'MODERATE' : resonance >= 30 ? 'WEAK' : 'NONE'} category). Pattern type ${patternType} detected and verified. Initial signal processing revealed ${resonance >= 60 ? 'significant' : 'minimal'} temporal interference. Database cross-reference analysis completed across ${resonance >= 50 ? 'multiple similar temporal correlations' : 'standard temporal distribution patterns'}. Waveform synchronization analysis indicates ${resonance >= 70 ? 'highly synchronized temporal behavior' : resonance >= 50 ? 'moderate synchronization' : 'asynchronous temporal flow'}. Harmonic resonance characteristics show ${resonance >= 60 ? 'unusual' : 'expected'} temporal alignment. Pattern verification through primary and secondary algorithms confirms ${patternType} classification. Statistical analysis of temporal distribution ${resonance >= 50 ? 'deviates significantly from expected random patterns' : 'aligns with expected stochastic distribution'}. Signal interference depth analysis reveals ${resonance >= 60 ? 'complex multi-layer temporal relationships' : 'simple temporal correlation'}. ${resonance >= 60 ? 'RECOMMENDATION: Due to correlation strength and pattern complexity, extended temporal monitoring and detailed investigation are strongly recommended.' : 'CONCLUSION: Analysis complete. Standard monitoring protocols are sufficient.'}`
+    ];
+    
+    // Özel durumlar
     const specialCases = [
         { condition: () => date1.getDate() === date2.getDate() && date1.getMonth() === date2.getMonth(),
-          text: `CRITICAL: Same calendar date detected across different years. This suggests temporal echo or recurring event pattern. Resonance is unusually high.` },
+          short: `CRITICAL: Same calendar date detected across different years. This suggests temporal echo or recurring event pattern. Resonance is unusually high.`,
+          long: `CRITICAL TEMPORAL ANOMALY DETECTED. Same calendar date identified across different years (${date1.getFullYear()} and ${date2.getFullYear()}). This pattern suggests temporal echo phenomenon or recurring event structure. Resonance measurement indicates ${resonance}% correlation, significantly higher than expected for random temporal distribution. Analysis suggests potential temporal loop or cyclical event pattern. Extended investigation strongly recommended.`,
+          veryLong: `CRITICAL TEMPORAL ANOMALY - EXTENDED ANALYSIS REPORT. Same calendar date detected across different years (${date1.getFullYear()} and ${date2.getFullYear()}) represents a significant temporal anomaly. This pattern suggests temporal echo phenomenon, recurring event structure, or potential temporal loop mechanism. Resonance measurement of ${resonance}% indicates exceptionally high correlation, far exceeding expected values for random temporal distribution. Deep analysis reveals complex temporal relationships that require extended processing. Pattern classification suggests non-linear temporal behavior. Cross-temporal database analysis shows similar patterns are extremely rare. Harmonic resonance analysis indicates exceptional temporal alignment. Statistical deviation from expected patterns is highly significant. RECOMMENDATION: Immediate extended investigation and continuous temporal monitoring required. This pattern may indicate fundamental temporal structure anomaly.` },
         { condition: () => Math.abs(date1.getFullYear() - date2.getFullYear()) === 0,
-          text: `Same year correlation. Events may share temporal context. Pattern suggests localized temporal anomaly.` },
+          short: `Same year correlation. Events may share temporal context. Pattern suggests localized temporal anomaly.`,
+          long: `SAME YEAR TEMPORAL CORRELATION DETECTED. Both coordinates exist within the same temporal year (${date1.getFullYear()}), suggesting shared temporal context. This pattern indicates localized temporal anomaly or simultaneous event structure. Resonance measurement at ${resonance}% suggests ${resonance >= 50 ? 'significant' : 'minimal'} correlation within same temporal period. Analysis indicates ${resonance >= 60 ? 'potential causal relationship' : 'coincidental temporal overlap'}. Extended analysis recommended for same-year correlations.`,
+          veryLong: `SAME YEAR TEMPORAL CORRELATION - COMPREHENSIVE ANALYSIS. Both temporal coordinates exist within the same year (${date1.getFullYear()}), representing a significant temporal clustering pattern. This suggests shared temporal context, localized temporal anomaly, or simultaneous event structure within narrow temporal window. Resonance measurement of ${resonance}% indicates ${resonance >= 50 ? 'significant' : 'minimal'} correlation strength. Deep analysis reveals ${resonance >= 60 ? 'complex temporal relationships' : 'simple temporal proximity'}. Pattern suggests ${resonance >= 50 ? 'non-random temporal distribution' : 'stochastic temporal clustering'}. Cross-reference analysis shows similar same-year correlations occur with ${resonance >= 50 ? 'unusual frequency' : 'expected frequency'}. Harmonic analysis indicates ${resonance >= 60 ? 'exceptional' : 'standard'} temporal alignment within same year. RECOMMENDATION: Extended monitoring of same-year temporal patterns recommended.` },
         { condition: () => Math.abs(date1.getFullYear() - date2.getFullYear()) === 25,
-          text: `Quarter-century gap detected. This interval often shows harmonic resonance in temporal analysis.` }
+          short: `Quarter-century gap detected. This interval often shows harmonic resonance in temporal analysis.`,
+          long: `QUARTER-CENTURY TEMPORAL GAP IDENTIFIED. The ${gap} interval represents exactly 25 years, a quarter-century gap. Historical temporal analysis indicates this interval often exhibits harmonic resonance properties. Resonance measurement at ${resonance}% suggests ${resonance >= 50 ? 'significant' : 'moderate'} temporal correlation. This specific interval has been observed in multiple temporal correlation studies. Pattern analysis indicates ${resonance >= 60 ? 'non-coincidental' : 'potential'} harmonic resonance. Extended analysis of quarter-century patterns recommended.`,
+          veryLong: `QUARTER-CENTURY TEMPORAL GAP - EXTENDED ANALYSIS REPORT. The ${gap} interval represents exactly 25 years, a quarter-century temporal separation. Historical temporal analysis databases indicate this specific interval frequently exhibits harmonic resonance properties across multiple correlation studies. Resonance measurement of ${resonance}% places this analysis in the ${resonance >= 50 ? 'significant' : 'moderate'} correlation category. Deep pattern analysis reveals ${resonance >= 60 ? 'complex harmonic relationships' : 'standard harmonic properties'} associated with quarter-century intervals. Cross-temporal database analysis shows quarter-century gaps appear with ${resonance >= 50 ? 'unusual frequency' : 'expected frequency'} in correlation studies. Harmonic resonance analysis indicates ${resonance >= 60 ? 'exceptional' : 'moderate'} temporal alignment properties. Statistical analysis suggests quarter-century intervals may represent fundamental temporal harmonic structure. RECOMMENDATION: Extended investigation of quarter-century temporal patterns strongly recommended. This interval may represent significant temporal harmonic frequency.` }
     ];
     
+    // Özel durumları kontrol et
     for (const special of specialCases) {
         if (special.condition()) {
-            return special.text;
+            if (isVeryLongAnalysis && special.veryLong) {
+                return special.veryLong;
+            } else if (isLongAnalysis && special.long) {
+                return special.long;
+            } else {
+                return special.short;
+            }
         }
     }
     
-    return patterns[Math.floor(Math.random() * patterns.length)];
+    // Normal durumlar - süreye göre seç
+    if (isVeryLongAnalysis) {
+        return veryLongPatterns[Math.floor(Math.random() * veryLongPatterns.length)];
+    } else if (isLongAnalysis) {
+        return longPatterns[Math.floor(Math.random() * longPatterns.length)];
+    } else {
+        return shortPatterns[Math.floor(Math.random() * shortPatterns.length)];
+    }
 }
 
-function analyzeCorrelation(date1Str, date2Str) {
+function analyzeCorrelation(date1Str, date2Str, analysisDuration = 0) {
     const date1 = parseDate(date1Str);
     const date2 = parseDate(date2Str);
     
@@ -663,7 +710,7 @@ function analyzeCorrelation(date1Str, date2Str) {
     const gap = calculateTemporalGap(date1, date2);
     const resonance = calculateResonance(date1, date2);
     const patternType = getPatternType(date1, date2, resonance);
-    const analysis = generateAnalysis(date1, date2, resonance, patternType, gap);
+    const analysis = generateAnalysis(date1, date2, resonance, patternType, gap, analysisDuration);
     
     return {
         gap: gap,
@@ -728,9 +775,28 @@ function setupCorrelationButton() {
             analyzeBtn.disabled = true;
             analyzeBtn.textContent = 'ANALYZING...';
             
-            // Loading ekranını göster
+            // Sonuçları gizle
             document.getElementById('correlationResults').style.display = 'none';
-            document.getElementById('correlationLoading').style.display = 'block';
+            
+            // Loading ekranını hazırla ve göster
+            const loadingDiv = document.getElementById('correlationLoading');
+            const progressBar = document.getElementById('loadingProgressBar');
+            const loadingStatus = document.getElementById('loadingStatus');
+            
+            // Progress bar ve adımları sıfırla
+            progressBar.style.width = '0%';
+            loadingStatus.textContent = 'INITIALIZING ANALYSIS...';
+            
+            // Tüm adımları sıfırla
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (step) {
+                    step.classList.remove('active', 'completed');
+                }
+            }
+            
+            // Loading ekranını göster
+            loadingDiv.style.display = 'block';
             
             // Progress bar ve loading animasyonu
             startLoadingAnimation(date1, date2);
@@ -761,8 +827,19 @@ function setupCorrelationButton() {
 }
 
 function startLoadingAnimation(date1, date2) {
-    // 20-30 saniye arası rastgele süre
-    const totalTime = 20000 + Math.random() * 10000; // 20-30 saniye
+    // Süre belirleme: %70 ihtimal 20-30 saniye, %20 ihtimal 60 saniye, %10 ihtimal 2 dakika
+    const rand = Math.random();
+    let totalTime;
+    if (rand < 0.7) {
+        // %70 ihtimal: 20-30 saniye
+        totalTime = 20000 + Math.random() * 10000;
+    } else if (rand < 0.9) {
+        // %20 ihtimal: 60 saniye
+        totalTime = 60000;
+    } else {
+        // %10 ihtimal: 2 dakika
+        totalTime = 120000;
+    }
     const steps = [
         { id: 'step1', text: 'SCANNING TEMPORAL COORDINATES', time: 0.15 },
         { id: 'step2', text: 'CALCULATING RESONANCE PATTERNS', time: 0.35 },
@@ -844,7 +921,7 @@ function startLoadingAnimation(date1, date2) {
         
         // Kısa bir gecikme sonrası sonuçları göster
         setTimeout(() => {
-            const results = analyzeCorrelation(date1, date2);
+            const results = analyzeCorrelation(date1, date2, totalTime);
             
             // Sonuçları göster
             document.getElementById('temporalGap').textContent = results.gap;
@@ -859,10 +936,10 @@ function startLoadingAnimation(date1, date2) {
             document.getElementById('correlationLoading').style.display = 'none';
             document.getElementById('correlationResults').style.display = 'block';
             
-            // Butonu tekrar aktif et
-            const analyzeBtn = document.getElementById('correlationAnalyzeBtn');
-            analyzeBtn.disabled = false;
-            analyzeBtn.textContent = 'ANALYZE';
+            // Analyze butonunu ve input alanlarını gizle (sonuçlar gösterildikten sonra)
+            document.getElementById('correlationAnalyzeBtn').style.display = 'none';
+            document.getElementById('dateInput1').parentElement.style.display = 'none';
+            document.getElementById('dateInput2').parentElement.style.display = 'none';
             
             // Sonuçlara scroll
             document.getElementById('correlationResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -889,11 +966,16 @@ function closeCorrelationModal() {
     // Progress bar'ı sıfırla
     document.getElementById('loadingProgressBar').style.width = '0%';
     
-    // Butonu tekrar aktif et
+    // Butonu ve input alanlarını tekrar göster
     const analyzeBtn = document.getElementById('correlationAnalyzeBtn');
     if (analyzeBtn) {
         analyzeBtn.disabled = false;
         analyzeBtn.textContent = 'ANALYZE';
+        analyzeBtn.style.display = 'block';
     }
+    
+    // Input alanlarını tekrar göster
+    document.getElementById('dateInput1').parentElement.style.display = 'block';
+    document.getElementById('dateInput2').parentElement.style.display = 'block';
 }
 
