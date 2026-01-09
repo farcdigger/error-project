@@ -715,26 +715,25 @@ function setupCorrelationButton() {
                 return;
             }
             
-            const results = analyzeCorrelation(date1, date2);
+            // Hızlı validasyon
+            const date1Parsed = parseDate(date1);
+            const date2Parsed = parseDate(date2);
             
-            if (results.error) {
-                alert(results.error);
+            if (!date1Parsed || !date2Parsed) {
+                alert('Invalid date format. Please use DD.MM.YYYY format (1950-2000)');
                 return;
             }
             
-            // Sonuçları göster
-            document.getElementById('temporalGap').textContent = results.gap;
-            document.getElementById('resonanceLevel').textContent = results.resonance;
-            document.getElementById('patternType').textContent = results.patternType;
-            document.getElementById('analysisText').textContent = results.analysis;
-            document.getElementById('correlationStatusText').textContent = results.status;
-            document.getElementById('correlationStatusIndicator').style.background = results.statusColor;
-            document.getElementById('correlationStatusIndicator').style.boxShadow = `0 0 10px ${results.statusColor}`;
+            // Butonu devre dışı bırak
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'ANALYZING...';
             
-            document.getElementById('correlationResults').style.display = 'block';
+            // Loading ekranını göster
+            document.getElementById('correlationResults').style.display = 'none';
+            document.getElementById('correlationLoading').style.display = 'block';
             
-            // Animasyon için scroll
-            document.getElementById('correlationResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Progress bar ve loading animasyonu
+            startLoadingAnimation(date1, date2);
         });
     }
     
@@ -761,11 +760,140 @@ function setupCorrelationButton() {
     });
 }
 
+function startLoadingAnimation(date1, date2) {
+    // 20-30 saniye arası rastgele süre
+    const totalTime = 20000 + Math.random() * 10000; // 20-30 saniye
+    const steps = [
+        { id: 'step1', text: 'SCANNING TEMPORAL COORDINATES', time: 0.15 },
+        { id: 'step2', text: 'CALCULATING RESONANCE PATTERNS', time: 0.35 },
+        { id: 'step3', text: 'ANALYZING TEMPORAL GAPS', time: 0.55 },
+        { id: 'step4', text: 'CROSS-REFERENCING DATABASE', time: 0.75 },
+        { id: 'step5', text: 'GENERATING CORRELATION REPORT', time: 0.95 }
+    ];
+    
+    const statusMessages = [
+        'INITIALIZING ANALYSIS...',
+        'ACCESSING TEMPORAL DATABASE...',
+        'PROCESSING COORDINATES...',
+        'CALCULATING RESONANCE...',
+        'ANALYZING PATTERNS...',
+        'CROSS-REFERENCING...',
+        'GENERATING REPORT...',
+        'FINALIZING ANALYSIS...'
+    ];
+    
+    const progressBar = document.getElementById('loadingProgressBar');
+    const loadingStatus = document.getElementById('loadingStatus');
+    let currentProgress = 0;
+    let currentStepIndex = 0;
+    
+    // Progress bar animasyonu
+    const progressInterval = setInterval(() => {
+        currentProgress += 0.5;
+        if (currentProgress <= 100) {
+            progressBar.style.width = currentProgress + '%';
+        }
+    }, totalTime / 200);
+    
+    // Status mesajları değiştir
+    let statusIndex = 0;
+    const statusInterval = setInterval(() => {
+        if (statusIndex < statusMessages.length) {
+            loadingStatus.textContent = statusMessages[statusIndex];
+            statusIndex++;
+        }
+    }, totalTime / statusMessages.length);
+    
+    // Adımları aktif yap
+    steps.forEach((step, index) => {
+        setTimeout(() => {
+            // Önceki adımları tamamlandı olarak işaretle
+            for (let i = 0; i < index; i++) {
+                const prevStep = document.getElementById(steps[i].id);
+                if (prevStep) {
+                    prevStep.classList.remove('active');
+                    prevStep.classList.add('completed');
+                }
+            }
+            
+            // Mevcut adımı aktif yap
+            const currentStep = document.getElementById(step.id);
+            if (currentStep) {
+                currentStep.classList.add('active');
+            }
+        }, totalTime * step.time);
+    });
+    
+    // Analiz tamamlandığında sonuçları göster
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        clearInterval(statusInterval);
+        
+        // Son adımı tamamlandı olarak işaretle
+        steps.forEach(step => {
+            const stepEl = document.getElementById(step.id);
+            if (stepEl) {
+                stepEl.classList.remove('active');
+                stepEl.classList.add('completed');
+            }
+        });
+        
+        // Progress bar'ı tamamla
+        progressBar.style.width = '100%';
+        loadingStatus.textContent = 'ANALYSIS COMPLETE';
+        
+        // Kısa bir gecikme sonrası sonuçları göster
+        setTimeout(() => {
+            const results = analyzeCorrelation(date1, date2);
+            
+            // Sonuçları göster
+            document.getElementById('temporalGap').textContent = results.gap;
+            document.getElementById('resonanceLevel').textContent = results.resonance;
+            document.getElementById('patternType').textContent = results.patternType;
+            document.getElementById('analysisText').textContent = results.analysis;
+            document.getElementById('correlationStatusText').textContent = results.status;
+            document.getElementById('correlationStatusIndicator').style.background = results.statusColor;
+            document.getElementById('correlationStatusIndicator').style.boxShadow = `0 0 10px ${results.statusColor}`;
+            
+            // Loading'i gizle, sonuçları göster
+            document.getElementById('correlationLoading').style.display = 'none';
+            document.getElementById('correlationResults').style.display = 'block';
+            
+            // Butonu tekrar aktif et
+            const analyzeBtn = document.getElementById('correlationAnalyzeBtn');
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = 'ANALYZE';
+            
+            // Sonuçlara scroll
+            document.getElementById('correlationResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 500);
+    }, totalTime);
+}
+
 function closeCorrelationModal() {
     const correlationModal = document.getElementById('correlationModal');
     correlationModal.classList.remove('active');
     document.getElementById('correlationResults').style.display = 'none';
+    document.getElementById('correlationLoading').style.display = 'none';
     document.getElementById('dateInput1').value = '';
     document.getElementById('dateInput2').value = '';
+    
+    // Loading adımlarını sıfırla
+    for (let i = 1; i <= 5; i++) {
+        const step = document.getElementById(`step${i}`);
+        if (step) {
+            step.classList.remove('active', 'completed');
+        }
+    }
+    
+    // Progress bar'ı sıfırla
+    document.getElementById('loadingProgressBar').style.width = '0%';
+    
+    // Butonu tekrar aktif et
+    const analyzeBtn = document.getElementById('correlationAnalyzeBtn');
+    if (analyzeBtn) {
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = 'ANALYZE';
+    }
 }
 

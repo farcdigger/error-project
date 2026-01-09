@@ -93,6 +93,20 @@
                 </div>
                 <button class="correlation-analyze-btn" id="correlationAnalyzeBtn">ANALYZE</button>
             </div>
+            <div class="correlation-loading" id="correlationLoading" style="display: none;">
+                <div class="loading-title">PROCESSING TEMPORAL DATA...</div>
+                <div class="loading-progress-container">
+                    <div class="loading-progress-bar" id="loadingProgressBar"></div>
+                </div>
+                <div class="loading-status" id="loadingStatus">INITIALIZING ANALYSIS...</div>
+                <div class="loading-steps">
+                    <div class="loading-step" id="step1">SCANNING TEMPORAL COORDINATES</div>
+                    <div class="loading-step" id="step2">CALCULATING RESONANCE PATTERNS</div>
+                    <div class="loading-step" id="step3">ANALYZING TEMPORAL GAPS</div>
+                    <div class="loading-step" id="step4">CROSS-REFERENCING DATABASE</div>
+                    <div class="loading-step" id="step5">GENERATING CORRELATION REPORT</div>
+                </div>
+            </div>
             <div class="correlation-results" id="correlationResults" style="display: none;">
                 <div class="correlation-status">
                     <span class="correlation-status-indicator" id="correlationStatusIndicator"></span>
